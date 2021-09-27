@@ -7,8 +7,8 @@ let expiryTime =constants.DEFAULT_EXPIRY_TIME;
 
 const init = (data) => {
     try { 
-        if(data.allowCountPerHour){
-           allowCountPerHour = data.allowCountPerHour;
+        if(data.allowCountPerExpiry){
+           allowCountPerHour = data.allowCountPerExpiry;
         }
         if(data.response){
             response = response;
