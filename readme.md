@@ -5,7 +5,7 @@ Basic rate-limiting middleware for Express. Used to limit repeated requests to p
 ## Installation
 
 ```
-npm i --save strict-middlware
+npm i --save strict-middleware
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ const {strictIpMiddleware, init} = require('../strict-ip-middleware');
 // initialize middleware
 // you can skip initialization if you want, the configuration will be set by default as below.
 init({
-allowCountPerHour : 10,
+allowCountPerExpiry : 10,
 expiryTime : 360000,
 response : { 
   error : { 
