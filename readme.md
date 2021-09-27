@@ -5,7 +5,7 @@ Basic rate-limiting middleware for Express. Used to limit repeated requests to p
 ## Installation
 
 ```
-npm i --save ratelimiter-middleware
+npm i --save strict-middlware
 ```
 
 ## Usage
@@ -15,8 +15,19 @@ const fileControllers = require('../controllers/file');
 const routes = require('express').Router();
 const multer  = require('multer')
 const upload = multer({ dest: 'uploads/' });
-const {strictIpMiddleware} = require('../strict-ip-middleware');
+const {strictIpMiddleware, init} = require('../strict-ip-middleware');
 
+// initialize middleware
+// you can skip initialization if you want, the configuration will be set by default as below.
+init({
+allowCountPerHour : 10
+expiryTime : 360000 
+response : { 
+  error : { 
+  message : 'too many requests'
+  }
+ }
+})
 
 // get the data
 routes.get('/file/:id', strictIpMiddleware, async(req, res) => {
