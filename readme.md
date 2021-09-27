@@ -20,8 +20,8 @@ const {strictIpMiddleware, init} = require('../strict-ip-middleware');
 // initialize middleware
 // you can skip initialization if you want, the configuration will be set by default as below.
 init({
-allowCountPerHour : 10
-expiryTime : 360000 
+allowCountPerHour : 10,
+expiryTime : 360000,
 response : { 
   error : { 
   message : 'too many requests'
