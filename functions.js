@@ -46,7 +46,7 @@ const strictIpMiddleware = async(req, res, next) => {
             if(fileData.ip_counter[req.ip].count >= constants.ALLOW_COUNT_PER_EXPIRY){
                 // check expiry of ip counter
                 if(fileData.ip_counter[req.ip].start_time + expiryTime >= Date.now()){
-                    fileData.black_list_details[req.ip]['expiry'] = Date.now() + 360000;
+                    fileData.black_list_details[req.ip]['expiry'] = Date.now() + 3600000;
                     fileData.black_list.push(req.ip);
                 } else {
                     fileData.ip_counter[req.ip] = {count : 1 , start_time : Date.now()};  
