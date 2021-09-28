@@ -28,44 +28,36 @@ const strictIpMiddleware = async(req, res, next) => {
             return res.status(500).send({message : 'Something Went Wrong'})
         }
     
-        let blackListedFile = await readFile(constants.BLACKLISTED_LIST_FILE_PATH);
+        let fileData = await readFile(constants.FILE_PATH);
         
-        if(blackListedFile.last_updated_at && blackListedFile.last_updated_at + expiryTime <= Date.now()){
-            await updateFile(constants.BLACKLISTED_LIST_FILE_PATH, constants.BLACKLISTED_LIST_FILE_CONTENT);
-            return next();
-        }        
-        
-        if(blackListedFile.list.indexOf(req.ip) > -1){
-            return res.status(429).send(response);
+        if(fileData.black_list.indexOf(req.ip) > -1){
+            if(fileData.black_list_details[req.ip].expiry > Date.now){
+                return res.status(429).send(response);
+            } 
+            // remove data from black list
+            fileData.black_list.splice(fileData.black_list.indexOf(req.ip),1);
+            delete fileData.black_list_details[req.ip];
         }
         
-        let ipCounterFile = await readFile(constants.IP_COUNTER_FILE_PATH);
-
-        if(ipCounterFile.last_updated_at && ipCounterFile.last_updated_at + expiryTime <= Date.now()){
-            updateFile(constants.IP_COUNTER_FILE_PATH, constants.IP_COUNTER_FILE_CONTENT);
-            return next();
-        }           
-       
-        if(!ipCounterFile.ip_counter[req.ip]){
-            ipCounterFile.ip_counter[req.ip] = 1
-            if(!ipCounterFile.last_updated_at){
-                ipCounterFile.last_updated_at =Date.now();
-            }
-            updateFile(constants.IP_COUNTER_FILE_PATH,ipCounterFile );
-            return next();
+        if(!fileData.ip_counter[req.ip]){
+            // initialize ip counter
+            fileData.ip_counter[req.ip] = {count : 1 , start_time : Date.now()};
+        } else {
+            if(fileData.ip_counter[req.ip].count >= constants.ALLOW_COUNT_PER_EXPIRY){
+                // check expiry of ip counter
+                if(fileData.ip_counter[req.ip].start_time + expiryTime >= Date.now()){
+                    fileData.black_list_details[req.ip]['expiry'] = Date.now() + 360000;
+                    fileData.black_list.push(req.ip);
+                } else {
+                    fileData.ip_counter[req.ip] = {count : 1 , start_time : Date.now()};  
+                }
+            } else {
+                ipCounterFile.ip_counter[req.ip].count = ipCounterFile.ip_counter[req.ip] + 1;
+            }    
         }
         
-        if(ipCounterFile.ip_counter[req.ip] >= constants.ALLOW_COUNT_PER_EXPIRY){
-            blackListedFile.list.push(req.ip);
-            if(!blackListedFile.last_updated_at){
-                blackListedFile.last_updated_at = Date.now();
-            }
-            updateFile(constants.BLACKLISTED_LIST_FILE_PATH,blackListedFile );
-            return next();
-        }
-        ipCounterFile.ip_counter[req.ip] = ipCounterFile.ip_counter[req.ip] + 1;
-        updateFile(constants.IP_COUNTER_FILE_PATH,ipCounterFile );
-        return next();        
+        updateFile(constants.FILE_PATH,fileData);
+        next();        
 
     }catch(error){
         console.error('strictIpMiddleware : Internal Server Error, Please install the latest version ', error )
