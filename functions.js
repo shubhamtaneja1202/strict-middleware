@@ -52,7 +52,7 @@ const strictIpMiddleware = async(req, res, next) => {
                     fileData.ip_counter[req.ip] = {count : 1 , start_time : Date.now()};  
                 }
             } else {
-                ipCounterFile.ip_counter[req.ip].count = ipCounterFile.ip_counter[req.ip] + 1;
+                fileData.ip_counter[req.ip].count = fileData.ip_counter[req.ip].count + 1;
             }    
         }
         
