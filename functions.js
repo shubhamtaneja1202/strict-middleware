@@ -31,7 +31,7 @@ const strictIpMiddleware = async(req, res, next) => {
         let fileData = await readFile(constants.FILE_PATH);
         
         if(fileData.black_list.indexOf(req.ip) > -1){
-            if(fileData.black_list_details[req.ip].expiry > Date.now){
+            if(fileData.black_list_details[req.ip].expiry + expiryTime >= Date.now()){
                 return res.status(429).send(response);
             } 
             // remove data from black list
@@ -46,13 +46,18 @@ const strictIpMiddleware = async(req, res, next) => {
             if(fileData.ip_counter[req.ip].count >= constants.ALLOW_COUNT_PER_EXPIRY){
                 // check expiry of ip counter
                 if(fileData.ip_counter[req.ip].start_time + expiryTime >= Date.now()){
+                    fileData.black_list_details[req.ip] = {};
                     fileData.black_list_details[req.ip]['expiry'] = Date.now() + 3600000;
                     fileData.black_list.push(req.ip);
                 } else {
                     fileData.ip_counter[req.ip] = {count : 1 , start_time : Date.now()};  
                 }
             } else {
-                fileData.ip_counter[req.ip].count = fileData.ip_counter[req.ip].count + 1;
+                if(fileData.ip_counter[req.ip].start_time + expiryTime <= Date.now()){
+                    fileData.ip_counter[req.ip] = {count : 1 , start_time : Date.now()};  
+                }else {
+                    fileData.ip_counter[req.ip].count = fileData.ip_counter[req.ip].count + 1;
+                }
             }    
         }
         

@@ -6,5 +6,5 @@ module.exports = {
         }
     },
     DEFAULT_EXPIRY_TIME :3600000,
-    FILE_PATH : './strict-ip-middleware/store/data.json',
+    FILE_PATH : './strict-middleware/store/data.json',
 }

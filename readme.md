@@ -15,7 +15,7 @@ const fileControllers = require('../controllers/file');
 const routes = require('express').Router();
 const multer  = require('multer')
 const upload = multer({ dest: 'uploads/' });
-const {strictIpMiddleware, init} = require('../strict-ip-middleware');
+const {strictIpMiddleware, init} = require('../strict-middleware');
 
 // initialize middleware
 // you can skip initialization if you want, the configuration will be set by default as below.
